@@ -3,7 +3,8 @@ package com.mizuho.matsuri.data.impl;
 
 import com.mizuho.matsuri.pricestore.data.impl.PricePersistenceService;
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collection;

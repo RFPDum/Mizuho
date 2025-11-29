@@ -4,7 +4,7 @@ import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 import com.mizuho.matsuri.pricestore.service.IPriceIndexer;
 import com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache;
 import com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.PriceSet;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;

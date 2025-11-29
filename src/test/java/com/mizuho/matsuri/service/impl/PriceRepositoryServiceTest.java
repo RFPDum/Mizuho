@@ -4,10 +4,7 @@ import com.mizuho.matsuri.pricestore.data.IPricePersistenceService;
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 import com.mizuho.matsuri.pricestore.service.IPriceIndexer;
 import com.mizuho.matsuri.pricestore.service.impl.PriceRepositoryService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
 import org.mockito.verification.VerificationMode;
 
 import java.util.Collection;
@@ -19,12 +16,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
-@RunWith(MockitoJUnitRunner.class)
 public class PriceRepositoryServiceTest {
-    @Mock
-    private IPriceIndexer priceCache;
-    @Mock
-    private IPricePersistenceService pricePersistenceService;
+    private final IPriceIndexer            priceCache              = mock(IPriceIndexer.class);
+    private final IPricePersistenceService pricePersistenceService = mock(IPricePersistenceService.class);
 
     private static final int RETENTION_PERIOD = 30;
 
