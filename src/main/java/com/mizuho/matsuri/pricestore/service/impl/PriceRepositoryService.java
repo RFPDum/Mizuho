@@ -1,9 +1,9 @@
-package com.mizuho.matsuri.service.impl;
+package com.mizuho.matsuri.pricestore.service.impl;
 
-import com.mizuho.matsuri.model.InstrumentPrice;
-import com.mizuho.matsuri.service.IPriceIndexer;
-import com.mizuho.matsuri.data.IPricePersistenceService;
-import com.mizuho.matsuri.service.IPriceRepositoryService;
+import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
+import com.mizuho.matsuri.pricestore.service.IPriceIndexer;
+import com.mizuho.matsuri.pricestore.data.IPricePersistenceService;
+import com.mizuho.matsuri.pricestore.service.IPriceRepositoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +27,8 @@ public class PriceRepositoryService implements IPriceRepositoryService {
     }
 
     @Override
-    public Collection<InstrumentPrice>  retrieveProviderPrices(String providerId) {
-        return priceCache.getProviderPrices(providerId);
+    public Collection<InstrumentPrice> retrieveVendorPrices(String providerId) {
+        return priceCache.getVendorPrices(providerId);
     }
 
     @Override

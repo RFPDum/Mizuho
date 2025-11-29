@@ -1,6 +1,6 @@
-package com.mizuho.matsuri.service;
+package com.mizuho.matsuri.pricestore.service;
 
-import com.mizuho.matsuri.model.InstrumentPrice;
+import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 
 import java.util.Collection;
 
@@ -9,7 +9,7 @@ public interface IPriceRepositoryService {
 
     Collection<InstrumentPrice> retrievePricesForIsin(String isin);
 
-    Collection<InstrumentPrice>  retrieveProviderPrices(String providerId);
+    Collection<InstrumentPrice> retrieveVendorPrices(String providerId);
 
     /**
      * Rebuild price cache from persistent data storage

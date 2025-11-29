@@ -1,6 +1,6 @@
-package com.mizuho.matsuri.data;
+package com.mizuho.matsuri.pricestore.data;
 
-import com.mizuho.matsuri.model.InstrumentPrice;
+import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 
 import java.util.Collection;
 

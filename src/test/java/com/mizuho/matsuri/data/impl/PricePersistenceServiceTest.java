@@ -1,7 +1,8 @@
 package com.mizuho.matsuri.data.impl;
 
 
-import com.mizuho.matsuri.model.InstrumentPrice;
+import com.mizuho.matsuri.pricestore.data.impl.PricePersistenceService;
+import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -24,7 +25,7 @@ public class PricePersistenceServiceTest {
         final InstrumentPrice price6             = ofInstrumentPrice(ISIN_2, PRICE_PROVIDER_2, DAY_MIN_11);
         final List<InstrumentPrice> prices       = List.of(price1, price2, price3, price4, price5, price6);
         final List<InstrumentPrice> expRetrieved = List.of(price1, price2, price3, price4);
-        final PricePersistenceService service        = ofPriceStorageService(prices);
+        final PricePersistenceService service    = ofPriceStorageService(prices);
 
         // When
         final Collection<InstrumentPrice> retrieved = service.retrieveInstrumentPrices(10);
@@ -36,8 +37,8 @@ public class PricePersistenceServiceTest {
     @Test
     public void should_store_prices_when_storeInstrumentPrice_is_called() {
         // Given
-        final InstrumentPrice price1      = ofInstrumentPrice(ISIN_1, PRICE_PROVIDER_1, DAY);
-        final InstrumentPrice price2      = ofInstrumentPrice(ISIN_1, PRICE_PROVIDER_2, DAY);
+        final InstrumentPrice price1          = ofInstrumentPrice(ISIN_1, PRICE_PROVIDER_1, DAY);
+        final InstrumentPrice price2          = ofInstrumentPrice(ISIN_1, PRICE_PROVIDER_2, DAY);
         final PricePersistenceService service = ofPriceStorageService();
 
         // When

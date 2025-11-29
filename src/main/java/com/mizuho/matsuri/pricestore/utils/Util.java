@@ -1,6 +1,6 @@
-package com.mizuho.matsuri.utils;
+package com.mizuho.matsuri.pricestore.utils;
 
-import com.mizuho.matsuri.model.InstrumentPrice;
+import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 
 import java.time.LocalDateTime;
 

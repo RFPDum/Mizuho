@@ -1,7 +1,7 @@
-package com.mizuho.matsuri.service.impl;
+package com.mizuho.matsuri.pricestore.service.impl;
 
-import com.mizuho.matsuri.model.InstrumentPrice;
-import com.mizuho.matsuri.service.IPriceIndexer;
+import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
+import com.mizuho.matsuri.pricestore.service.IPriceIndexer;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,21 +12,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.mizuho.matsuri.utils.Util.getCutOffDate;
-import static com.mizuho.matsuri.utils.Util.isStale;
+import static com.mizuho.matsuri.pricestore.utils.Util.getCutOffDate;
+import static com.mizuho.matsuri.pricestore.utils.Util.isStale;
 
 @Service
 @AllArgsConstructor
 public class InstrumentPriceCache implements IPriceIndexer {
     private final int retentionPeriodInDays;
 
-    private final Map<String, PriceSet> priceByProvider   = new ConcurrentHashMap<>();
+    private final Map<String, PriceSet> priceByVendor     = new ConcurrentHashMap<>();
     private final Map<String, PriceSet> priceByInstrument = new ConcurrentHashMap<>();
 
 
     @Override
     public void indexPrice(InstrumentPrice price) {
-        getPriceSet(priceByProvider, price.providerId()).add(price);
+        getPriceSet(priceByVendor, price.providerId()).add(price);
         getPriceSet(priceByInstrument, price.isin()).add(price);
     }
 
@@ -41,8 +41,8 @@ public class InstrumentPriceCache implements IPriceIndexer {
     }
 
     @Override
-    public Collection<InstrumentPrice> getProviderPrices(String providerId) {
-        return getPriceSet(priceByProvider, providerId).getPrices();
+    public Collection<InstrumentPrice> getVendorPrices(String vendorId) {
+        return getPriceSet(priceByVendor, vendorId).getPrices();
     }
 
     private PriceSet getPriceSet(Map<String, PriceSet> priceMap, String key) {
@@ -51,7 +51,7 @@ public class InstrumentPriceCache implements IPriceIndexer {
 
     @Override
     public void purge() {
-        priceByProvider.values().forEach(ps -> ps.purge(retentionPeriodInDays));
+        priceByVendor.values().forEach(ps -> ps.purge(retentionPeriodInDays));
         priceByInstrument.values().forEach(ps -> ps.purge(retentionPeriodInDays));
     }
 
@@ -62,7 +62,7 @@ public class InstrumentPriceCache implements IPriceIndexer {
 
     @Override
     public boolean isEmpty() {
-        return priceByProvider.isEmpty() && priceByInstrument.isEmpty();
+        return priceByVendor.isEmpty() && priceByInstrument.isEmpty();
     }
 
     public static class PriceSet {

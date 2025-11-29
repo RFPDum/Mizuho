@@ -1,17 +1,20 @@
 package com.mizuho.matsuri.service.impl;
 
-import com.mizuho.matsuri.data.IPricePersistenceService;
-import com.mizuho.matsuri.model.InstrumentPrice;
-import com.mizuho.matsuri.service.IPriceIndexer;
+import com.mizuho.matsuri.pricestore.data.IPricePersistenceService;
+import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
+import com.mizuho.matsuri.pricestore.service.IPriceIndexer;
+import com.mizuho.matsuri.pricestore.service.impl.PriceRepositoryService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.verification.VerificationMode;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.mizuho.matsuri.testutils.InstrumentPriceUtils.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -77,15 +80,15 @@ public class PriceRepositoryServiceTest {
     }
 
     @Test
-    public void should_retrieve_prices_from_cache_when_retrieveProviderPrices_is_called() {
+    public void should_retrieve_prices_from_cache_when_retrieveVendorPrices_is_called() {
         // Given
         final PriceRepositoryService service = ofPriceRepoService();
 
         // When
-        service.retrieveProviderPrices(PRICE_PROVIDER_1);
+        service.retrieveVendorPrices(PRICE_PROVIDER_1);
 
         // Then
-        verify(priceCache).getProviderPrices(PRICE_PROVIDER_1);
+        verify(priceCache).getVendorPrices(PRICE_PROVIDER_1);
     }
 
     @Test
@@ -94,12 +97,12 @@ public class PriceRepositoryServiceTest {
         final PriceRepositoryService service = ofPriceRepoService();
 
         // When
-        service.retrievePricesForIsin(ISIN_1);
+        final Collection<InstrumentPrice> prices = service.retrievePricesForIsin(ISIN_1);
 
         // Then
         verify(priceCache).getInstrumentPrices(ISIN_1);
+        assertThat(prices).isNotNull();
     }
-
 
     private static VerificationMode twice() {
         return times(2);

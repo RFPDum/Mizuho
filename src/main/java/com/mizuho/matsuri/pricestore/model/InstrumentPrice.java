@@ -1,4 +1,4 @@
-package com.mizuho.matsuri.model;
+package com.mizuho.matsuri.pricestore.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
