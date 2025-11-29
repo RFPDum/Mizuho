@@ -3,6 +3,7 @@ package com.mizuho.matsuri.service.impl;
 import com.mizuho.matsuri.model.InstrumentPrice;
 import com.mizuho.matsuri.service.IPriceIndexer;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -11,8 +12,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.mizuho.matsuri.utils.Util.getCutOffDate;
+import static com.mizuho.matsuri.utils.Util.isStale;
+
+@Service
 @AllArgsConstructor
-public class PriceIndexer implements IPriceIndexer {
+public class InstrumentPriceCache implements IPriceIndexer {
     private final int retentionPeriodInDays;
 
     private final Map<String, PriceSet> priceByProvider   = new ConcurrentHashMap<>();
@@ -51,6 +56,11 @@ public class PriceIndexer implements IPriceIndexer {
     }
 
     @Override
+    public int getRetentionPeriod() {
+        return retentionPeriodInDays;
+    }
+
+    @Override
     public boolean isEmpty() {
         return priceByProvider.isEmpty() && priceByInstrument.isEmpty();
     }
@@ -67,12 +77,8 @@ public class PriceIndexer implements IPriceIndexer {
         }
 
         public void purge(int ageInDays) {
-            final LocalDateTime cutOff = LocalDateTime.now().minusDays(ageInDays);
-            prices.removeIf(price -> isTooOld(price, cutOff));
-        }
-
-        private static boolean isTooOld(InstrumentPrice price, LocalDateTime cutOff) {
-            return price.priceDate().isBefore(cutOff);
+            final LocalDateTime cutOff = getCutOffDate(ageInDays);
+            prices.removeIf(price -> isStale(price, cutOff));
         }
     }
 }

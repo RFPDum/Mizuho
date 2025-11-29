@@ -11,7 +11,9 @@ public interface IPriceIndexer {
     Collection<InstrumentPrice> getInstrumentPrices(String isin);
     Collection<InstrumentPrice> getProviderPrices(String providerId);
 
-    public void purge();
+    void purge();
+
+    int getRetentionPeriod();
 
     boolean isEmpty();
 }
