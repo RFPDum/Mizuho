@@ -41,7 +41,7 @@ public class InstrumentPriceUtils {
     }
 
     public static InstrumentPrice ofInstrumentPrice(String isin, String providerId, LocalDateTime priceTime) {
-        return new InstrumentPrice(isin, ofRandomCCY(), ofRandomPriceAmount(), priceTime, providerId,isin + " instrument");
+        return new InstrumentPrice(isin, ofRandomCCY(), ofRandomPriceAmount(), priceTime, providerId);
     }
 
     private static double ofRandomPriceAmount() {

@@ -34,7 +34,7 @@ public class InstrumentPriceCacheTest {
     @Test
     public void should_return_an_empty_collection_when_attempting_to_get_prices_from_a_provider_when_none_are_present() {
         // Given
-        final InstrumentPriceCache indexer = ofPriceIndexer();
+        final InstrumentPriceCache indexer = ofInstrumentPriceCache();
         final String aProviderId   = PRICE_PROVIDER_1;
 
         // When
@@ -47,7 +47,7 @@ public class InstrumentPriceCacheTest {
     @Test
     public void should_return_an_empty_collection_when_attempting_to_get_prices_for_an_instrument_when_none_are_present() {
         // Given
-        final InstrumentPriceCache indexer = ofPriceIndexer();
+        final InstrumentPriceCache indexer = ofInstrumentPriceCache();
         final String aProviderId   = "Bloomberg";
 
         // When
@@ -61,7 +61,7 @@ public class InstrumentPriceCacheTest {
     public void should_return_the_instrument_price_from_a_provider_when_there_is_only_one_price_for_that_provider() {
         // Given
         final InstrumentPrice price   = ofInstrumentPrice(ISIN_1, PRICE_PROVIDER_1);
-        final InstrumentPriceCache indexer = ofPriceIndexer(price);
+        final InstrumentPriceCache indexer = ofInstrumentPriceCache(price);
 
         // When
         final Collection<InstrumentPrice> prices = indexer.getProviderPrices(PRICE_PROVIDER_1);
@@ -74,7 +74,7 @@ public class InstrumentPriceCacheTest {
     public void should_return_the_instrument_price_for_a_given_isin_when_there_is_only_one_price_for_that_instrument() {
         // Given
         final InstrumentPrice price   = ofInstrumentPrice(ISIN_1, PRICE_PROVIDER_1);
-        final InstrumentPriceCache indexer = ofPriceIndexer(price);
+        final InstrumentPriceCache indexer = ofInstrumentPriceCache(price);
 
         // When
         final Collection<InstrumentPrice> prices = indexer.getInstrumentPrices(ISIN_1);
@@ -89,7 +89,7 @@ public class InstrumentPriceCacheTest {
         final List<InstrumentPrice> isin1Prices = ofInstrumentPricesForIsin(ISIN_1);
         final List<InstrumentPrice> isin2Prices = ofInstrumentPricesForIsin(ISIN_2);
 
-        final InstrumentPriceCache indexer = ofPriceIndexer();
+        final InstrumentPriceCache indexer = ofInstrumentPriceCache();
 
         // When
         for(InstrumentPrice price : isin1Prices) {
@@ -110,7 +110,7 @@ public class InstrumentPriceCacheTest {
         final List<InstrumentPrice> pr1Prices = ofInstrumentPricesForProvider(PRICE_PROVIDER_1);
         final List<InstrumentPrice> pr3Prices = ofInstrumentPricesForProvider(PRICE_PROVIDER_2);
 
-        final InstrumentPriceCache indexer = ofPriceIndexer();
+        final InstrumentPriceCache indexer = ofInstrumentPriceCache();
 
         // When
         for(InstrumentPrice price : pr1Prices) {
@@ -128,7 +128,7 @@ public class InstrumentPriceCacheTest {
     @Test
     public void should_rebuild_index_with_passed_prices_when_rebuild_index_is_called() {
         // Given
-        final InstrumentPriceCache indexer = ofPriceIndexer();
+        final InstrumentPriceCache indexer = ofInstrumentPriceCache();
         final List<InstrumentPrice> prices = ofInstrumentPricesForProvider(PRICE_PROVIDER_1);
         final Map<String, List<InstrumentPrice>> pricesByIsin = prices.stream().collect(Collectors.groupingBy(InstrumentPrice::isin));
         assertThat(indexer.isEmpty()).isTrue();
@@ -144,7 +144,7 @@ public class InstrumentPriceCacheTest {
     @Test
     public void should_return_an_empty_collection_when_calling_getProviderPrices_for_a_non_existent_provider() {
         // Given
-        final InstrumentPriceCache indexer = ofPriceIndexer();
+        final InstrumentPriceCache indexer = ofInstrumentPriceCache();
         final List<InstrumentPrice> prices = ofInstrumentPricesForProvider(PRICE_PROVIDER_1);
         indexer.rebuildIndex(prices);
 
@@ -158,7 +158,7 @@ public class InstrumentPriceCacheTest {
     @Test
     public void should_return_an_empty_collection_when_calling_getInstrumentPrices_for_a_non_existent_provider() {
         // Given
-        final InstrumentPriceCache indexer = ofPriceIndexer();
+        final InstrumentPriceCache indexer = ofInstrumentPriceCache();
         final List<InstrumentPrice> prices = ofInstrumentPricesForIsin(ISIN_3);
         indexer.rebuildIndex(prices);
 
@@ -172,7 +172,7 @@ public class InstrumentPriceCacheTest {
     @Test
     public void should_purge_all_prices_older_than_30_days_when_purge_is_called_check_by_provider() {
         // Given
-        final InstrumentPriceCache indexer = ofPriceIndexer();
+        final InstrumentPriceCache indexer = ofInstrumentPriceCache();
         final InstrumentPrice price1 = ofProvider2InstrumentPrice(ISIN_1, DAY);
         final InstrumentPrice price2 = ofProvider2InstrumentPrice(ISIN_2, DAY_MIN_1);
         final InstrumentPrice price3 = ofProvider2InstrumentPrice(ISIN_1, DAY_MIN_5);
@@ -200,7 +200,7 @@ public class InstrumentPriceCacheTest {
     @Test
     public void should_purge_all_prices_older_than_30_days_when_purge_is_called_check_by_isin() {
         // Given
-        final InstrumentPriceCache indexer = ofPriceIndexer();
+        final InstrumentPriceCache indexer = ofInstrumentPriceCache();
         final InstrumentPrice price1 = ofIsin1InstrumentPrice(PRICE_PROVIDER_1, DAY);
         final InstrumentPrice price2 = ofIsin1InstrumentPrice(PRICE_PROVIDER_2, DAY_MIN_1);
         final InstrumentPrice price3 = ofIsin1InstrumentPrice(PRICE_PROVIDER_1, DAY_MIN_5);
@@ -231,12 +231,11 @@ public class InstrumentPriceCacheTest {
     private InstrumentPrice ofIsin1InstrumentPrice(String priceProviderId, LocalDateTime priceTime) {
         return ofInstrumentPrice(ISIN_1, priceProviderId, priceTime);
     }
-
-    private InstrumentPriceCache ofPriceIndexer() {
-        return ofPriceIndexer(null);
+    private InstrumentPriceCache ofInstrumentPriceCache() {
+        return ofInstrumentPriceCache(null);
     }
 
-    private InstrumentPriceCache ofPriceIndexer(InstrumentPrice price) {
+    private InstrumentPriceCache ofInstrumentPriceCache(InstrumentPrice price) {
         final InstrumentPriceCache indexer = new InstrumentPriceCache(DATA_RETENTION_DAYS);
 
         if (price != null) {
