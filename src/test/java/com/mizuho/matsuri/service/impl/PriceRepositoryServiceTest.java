@@ -27,8 +27,8 @@ public class PriceRepositoryServiceTest {
 
         // Given
         final PriceRepositoryService service = ofPriceRepoService();
-        final InstrumentPrice price1 = ofInstrumentPrice(ISIN_1, PRICE_PROVIDER_1, DAY);
-        final InstrumentPrice price2 = ofInstrumentPrice(ISIN_1, PRICE_PROVIDER_2, DAY);
+        final InstrumentPrice price1 = ofInstrumentPrice(ISIN_1, VENDOR_1, DAY);
+        final InstrumentPrice price2 = ofInstrumentPrice(ISIN_1, VENDOR_2, DAY);
 
         // When
         service.acceptPriceData(price1);
@@ -48,8 +48,8 @@ public class PriceRepositoryServiceTest {
     public void should_rebuild_cache_when_rebuildPriceCache_is_called() {
         // Given
         final PriceRepositoryService service = ofPriceRepoService();
-        final InstrumentPrice price1 = ofInstrumentPrice(ISIN_2, PRICE_PROVIDER_1, DAY);
-        final InstrumentPrice price2 = ofInstrumentPrice(ISIN_3, PRICE_PROVIDER_2, DAY);
+        final InstrumentPrice price1 = ofInstrumentPrice(ISIN_2, VENDOR_1, DAY);
+        final InstrumentPrice price2 = ofInstrumentPrice(ISIN_3, VENDOR_2, DAY);
         final List<InstrumentPrice> priceList = List.of(price1, price2);
         doReturn(priceList).when(pricePersistenceService).retrieveInstrumentPrices(RETENTION_PERIOD);
 
@@ -79,10 +79,10 @@ public class PriceRepositoryServiceTest {
         final PriceRepositoryService service = ofPriceRepoService();
 
         // When
-        service.retrieveVendorPrices(PRICE_PROVIDER_1);
+        service.retrieveVendorPrices(VENDOR_1);
 
         // Then
-        verify(priceCache).getVendorPrices(PRICE_PROVIDER_1);
+        verify(priceCache).getVendorPrices(VENDOR_1);
     }
 
     @Test

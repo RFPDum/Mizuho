@@ -9,7 +9,7 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 public class InstrumentPriceUpdateRequest {
-    private String providerId;
+    private String vendorId;
     private String isin;
     private String currency;
     private Double price;

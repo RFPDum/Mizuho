@@ -1,20 +1,19 @@
 package com.mizuho.matsuri.rest.query.controler;
 
-import com.mizuho.matsuri.rest.query.impl.InstrumentPriceQueryService;
 import com.mizuho.matsuri.rest.feed.model.InstrumentPriceInfo;
+import com.mizuho.matsuri.rest.query.impl.InstrumentPriceQueryService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.ws.rs.core.Response;
-
 @RestController
 @AllArgsConstructor
 @RequestMapping(value = "matsuri/instruments/prices")
 public class InstrumentPriceQueryRestController {
-    private InstrumentPriceQueryService queryService;
+    private final InstrumentPriceQueryService queryService;
 
     @GetMapping(value="/getbyisin/{isin}")
     public InstrumentPriceInfo[] getInstrumentPrices(@PathVariable String isin) {
@@ -27,7 +26,7 @@ public class InstrumentPriceQueryRestController {
     }
 
     @GetMapping(value ="/purgeoldprices")
-    public Response purgeOldPrices() {
+    public ResponseEntity<String> purgeOldPrices() {
         return queryService.purgeOldPrices();
     }
 }

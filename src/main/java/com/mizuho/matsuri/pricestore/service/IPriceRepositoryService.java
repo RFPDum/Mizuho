@@ -9,7 +9,7 @@ public interface IPriceRepositoryService {
 
     Collection<InstrumentPrice> retrievePricesForIsin(String isin);
 
-    Collection<InstrumentPrice> retrieveVendorPrices(String providerId);
+    Collection<InstrumentPrice> retrieveVendorPrices(String vendorId);
 
     /**
      * Rebuild price cache from persistent data storage

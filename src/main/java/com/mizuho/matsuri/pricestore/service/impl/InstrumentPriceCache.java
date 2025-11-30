@@ -26,7 +26,7 @@ public class InstrumentPriceCache implements IPriceIndexer {
 
     @Override
     public void indexPrice(InstrumentPrice price) {
-        getPriceSet(priceByVendor, price.providerId()).add(price);
+        getPriceSet(priceByVendor, price.vendorId()).add(price);
         getPriceSet(priceByInstrument, price.isin()).add(price);
     }
 

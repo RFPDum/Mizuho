@@ -27,8 +27,8 @@ public class PriceRepositoryService implements IPriceRepositoryService {
     }
 
     @Override
-    public Collection<InstrumentPrice> retrieveVendorPrices(String providerId) {
-        return priceCache.getVendorPrices(providerId);
+    public Collection<InstrumentPrice> retrieveVendorPrices(String vendorId) {
+        return priceCache.getVendorPrices(vendorId);
     }
 
     @Override

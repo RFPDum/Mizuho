@@ -7,5 +7,5 @@ public record InstrumentPrice(String isin,
                               String currency,
                               double price,
                               LocalDateTime priceDate,
-                              String providerId) implements Serializable {
+                              String vendorId) implements Serializable {
 }
