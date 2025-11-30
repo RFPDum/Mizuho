@@ -106,6 +106,64 @@ public class InstrumentPriceCacheTest {
     }
 
     @Test
+    public void should_return_stored_prices_in_chronological_order_when_calling_getVendorPrices() {
+        // Given
+        final IPriceIndexer indexer  = ofInstrumentPriceCache();
+        final InstrumentPrice price1 = ofVendor2InstrumentPrice(ISIN_1, DAY);
+        final InstrumentPrice price2 = ofVendor2InstrumentPrice(ISIN_2, DAY_MIN_1);
+        final InstrumentPrice price3 = ofVendor2InstrumentPrice(ISIN_1, DAY_MIN_5);
+        final InstrumentPrice price4 = ofVendor2InstrumentPrice(ISIN_1, DAY_MIN_10);
+        final InstrumentPrice price5 = ofVendor2InstrumentPrice(ISIN_1, DAY_MIN_11);
+        final List<InstrumentPrice> prices = List.of(price1,
+                                                     price2,
+                                                     price3,
+                                                     price4,
+                                                     price5);
+        indexer.rebuildIndex(prices);
+        final List<InstrumentPrice> expResult = List.of(
+                price5,
+                price4,
+                price3,
+                price2,
+                price1);
+
+        // When
+        final Collection<InstrumentPrice> vendorPrices = indexer.getVendorPrices(VENDOR_2);
+
+        // Then
+        assertThat(vendorPrices).containsExactlyElementsOf(expResult);
+    }
+
+    @Test
+    public void should_return_stored_prices_in_chronological_order_when_calling_getInstrumentPrices() {
+        // Given
+        final IPriceIndexer indexer  = ofInstrumentPriceCache();
+        final InstrumentPrice price1 = ofIsin1InstrumentPrice(VENDOR_1, DAY);
+        final InstrumentPrice price2 = ofIsin1InstrumentPrice(VENDOR_2, DAY_MIN_1);
+        final InstrumentPrice price3 = ofIsin1InstrumentPrice(VENDOR_1, DAY_MIN_5);
+        final InstrumentPrice price4 = ofIsin1InstrumentPrice(VENDOR_2, DAY_MIN_10);
+        final InstrumentPrice price5 = ofIsin1InstrumentPrice(VENDOR_1, DAY_MIN_11);
+        final List<InstrumentPrice> prices = List.of(price1,
+                                                     price2,
+                                                     price3,
+                                                     price4,
+                                                     price5);
+        indexer.rebuildIndex(prices);
+        final List<InstrumentPrice> expResult = List.of(
+                price5,
+                price4,
+                price3,
+                price2,
+                price1);
+
+        // When
+        final Collection<InstrumentPrice> vendorPrices = indexer.getInstrumentPrices(ISIN_1);
+
+        // Then
+        assertThat(vendorPrices).containsExactlyElementsOf(expResult);
+    }
+
+    @Test
     public void should_store_all_prices_for_a_given_price_vendor() {
         // Give
         final List<InstrumentPrice> pr1Prices = ofInstrumentPricesForVendor(VENDOR_1);

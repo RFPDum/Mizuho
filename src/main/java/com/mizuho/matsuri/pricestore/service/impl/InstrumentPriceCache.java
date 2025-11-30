@@ -6,10 +6,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.mizuho.matsuri.pricestore.utils.Util.getCutOffDate;
@@ -73,7 +70,7 @@ public class InstrumentPriceCache implements IPriceIndexer {
         }
 
         public Collection<InstrumentPrice> getPrices() {
-            return Set.copyOf(prices);
+            return new TreeSet<>(prices);
         }
 
         public void purge(int ageInDays) {

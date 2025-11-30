@@ -13,7 +13,7 @@ public class InstrumentPriceUtils {
     public static final LocalDateTime DAY_MIN_1  = DAY.minusDays(1);
     public static final LocalDateTime DAY_MIN_5  = DAY.minusDays(5);
     public static final LocalDateTime DAY_MIN_10 = DAY.minusDays(10);
-    public static final LocalDateTime DAY_MIN_11 = DAY.minusDays(10);
+    public static final LocalDateTime DAY_MIN_11 = DAY.minusDays(11);
 
     public static final String ISIN_1            = "JP3885780001";
     public static final String ISIN_2            = "GB0030913577";
