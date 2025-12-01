@@ -17,7 +17,7 @@ import static com.mizuho.matsuri.rest.util.ResponseUtils.ofOKResponse;
 @Service
 @AllArgsConstructor
 public class InstrumentPriceFeedService {
-    private final IPriceRepositoryService priceRepositoryService;
+    private final IPriceRepositoryService<InstrumentPrice> priceRepositoryService;
 
     public ResponseEntity<String> addPriceUpdate(InstrumentPriceUpdateRequest priceUpdateRequest) {
         try {
