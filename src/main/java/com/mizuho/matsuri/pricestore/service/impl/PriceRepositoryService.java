@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.ISIN;
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.VENDOR;
+
 @Service
 @AllArgsConstructor
 public class PriceRepositoryService implements IPriceRepositoryService {
@@ -23,12 +26,12 @@ public class PriceRepositoryService implements IPriceRepositoryService {
 
     @Override
     public Collection<InstrumentPrice> retrievePricesForIsin(String isin) {
-        return priceCache.getInstrumentPrices(isin);
+        return priceCache.getInstrumentPrices(ISIN, isin);
     }
 
     @Override
     public Collection<InstrumentPrice> retrieveVendorPrices(String vendorId) {
-        return priceCache.getVendorPrices(vendorId);
+        return priceCache.getInstrumentPrices(VENDOR, vendorId);
     }
 
     @Override

@@ -2,29 +2,50 @@ package com.mizuho.matsuri.pricestore.service.impl;
 
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 import com.mizuho.matsuri.pricestore.service.IPriceIndexer;
-import lombok.AllArgsConstructor;
+import com.mizuho.matsuri.pricestore.service.InstrumentPriceCacheProperties;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import static com.mizuho.matsuri.pricestore.utils.Util.getCutOffDate;
 import static com.mizuho.matsuri.pricestore.utils.Util.isStale;
 
 @Service
-@AllArgsConstructor
 public class InstrumentPriceCache implements IPriceIndexer {
     private final int retentionPeriodInDays;
 
-    private final Map<String, PriceSet> priceByVendor     = new ConcurrentHashMap<>();
-    private final Map<String, PriceSet> priceByInstrument = new ConcurrentHashMap<>();
+    private final List<Map<String, PriceSet>> prices;
 
+    /**
+     * Constructor creates Instrument Price Cache
+     * @param properties cache properties
+     */
+    public InstrumentPriceCache(InstrumentPriceCacheProperties properties) {
+        retentionPeriodInDays = properties.getRetentionPeriodInDays();
+        prices                = initialiseIndexes();
+    }
+
+    private List<Map<String, PriceSet>> initialiseIndexes() {
+        final List<Map<String, PriceSet>> prices;
+        prices = new ArrayList<>(IndexType.values().length);
+        for (IndexType ignored : IndexType.values()) {
+            prices.add(new ConcurrentHashMap<>());
+        }
+        return prices;
+    }
 
     @Override
     public void indexPrice(InstrumentPrice price) {
-        getPriceSet(priceByVendor, price.vendorId()).add(price);
-        getPriceSet(priceByInstrument, price.isin()).add(price);
+        for (IndexType indexType : IndexType.values()) {
+            addPrice(price, indexType);
+        }
+    }
+
+    private void addPrice(InstrumentPrice price, IndexType indexType) {
+        getPriceSet(indexType, indexType.keyExtractor.apply(price)).add(price);
     }
 
     @Override
@@ -33,33 +54,28 @@ public class InstrumentPriceCache implements IPriceIndexer {
     }
 
     @Override
-    public Collection<InstrumentPrice> getInstrumentPrices(String isin) {
-        return getPriceSet(priceByInstrument, isin).getPrices();
+    public Collection<InstrumentPrice> getInstrumentPrices(IndexType indexType, String indexKey) {
+        return getPriceSet(indexType, indexKey).getPrices();
     }
 
-    @Override
-    public Collection<InstrumentPrice> getVendorPrices(String vendorId) {
-        return getPriceSet(priceByVendor, vendorId).getPrices();
+    private PriceSet getPriceSet(IndexType indexType, String key) {
+        return getIndex(indexType).computeIfAbsent(key, k -> new PriceSet());
     }
 
-    private PriceSet getPriceSet(Map<String, PriceSet> priceMap, String key) {
-        return priceMap.computeIfAbsent(key, k -> new PriceSet());
+    private Map<String, PriceSet> getIndex(IndexType indexType) {
+        return prices.get(indexType.indexNumber);
     }
 
     @Override
     public void purge() {
-        priceByVendor.values().forEach(ps -> ps.purge(retentionPeriodInDays));
-        priceByInstrument.values().forEach(ps -> ps.purge(retentionPeriodInDays));
+        for (IndexType indexType : IndexType.values()) {
+            getIndex(indexType).values().forEach(ps -> ps.purge(retentionPeriodInDays));
+        }
     }
 
     @Override
     public int getRetentionPeriod() {
         return retentionPeriodInDays;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return priceByVendor.isEmpty() && priceByInstrument.isEmpty();
     }
 
     public static class PriceSet {
@@ -76,6 +92,19 @@ public class InstrumentPriceCache implements IPriceIndexer {
         public void purge(int ageInDays) {
             final LocalDateTime cutOff = getCutOffDate(ageInDays);
             prices.removeIf(price -> isStale(price, cutOff));
+        }
+    }
+
+    public enum IndexType {
+        ISIN(0, InstrumentPrice::isin),
+        VENDOR(1, InstrumentPrice::vendorId);
+
+        private final Function<InstrumentPrice, String> keyExtractor;
+        private final int indexNumber;
+
+        IndexType(int indexNumber, Function<InstrumentPrice, String> keyExtractor) {
+            this.keyExtractor = keyExtractor;
+            this.indexNumber  = indexNumber;
         }
     }
 }

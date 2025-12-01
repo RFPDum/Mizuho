@@ -10,6 +10,8 @@ import org.mockito.verification.VerificationMode;
 import java.util.Collection;
 import java.util.List;
 
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.ISIN;
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.VENDOR;
 import static com.mizuho.matsuri.testutils.InstrumentPriceUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -82,7 +84,7 @@ public class PriceRepositoryServiceTest {
         service.retrieveVendorPrices(VENDOR_1);
 
         // Then
-        verify(priceCache).getVendorPrices(VENDOR_1);
+        verify(priceCache).getInstrumentPrices(VENDOR, VENDOR_1);
     }
 
     @Test
@@ -94,7 +96,7 @@ public class PriceRepositoryServiceTest {
         final Collection<InstrumentPrice> prices = service.retrievePricesForIsin(ISIN_1);
 
         // Then
-        verify(priceCache).getInstrumentPrices(ISIN_1);
+        verify(priceCache).getInstrumentPrices(ISIN, ISIN_1);
         assertThat(prices).isNotNull();
     }
 
