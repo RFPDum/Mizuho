@@ -1,13 +1,13 @@
 package com.mizuho.matsuri.pricestore.service;
 
-import com.mizuho.matsuri.pricestore.service.impl.InstrumentDataCache.IndexType;
+import com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType;
 
 import java.util.Collection;
 
 /**
  * Indexed data access object
  */
-public interface IDataCache<T> {
+public interface IDataCache<T, I extends IndexType> {
     /**
      * Add a piece of data to the store.
      * @param item item to store
@@ -28,7 +28,7 @@ public interface IDataCache<T> {
      * @param indexKey key for the data to retrieve
      * @return data retrieved
      */
-    Collection<T> getData(IndexType indexType, String indexKey);
+    Collection<T> getData(I indexType, String indexKey);
 
     /**
      * Remove data too old from the index
@@ -40,4 +40,6 @@ public interface IDataCache<T> {
      * @return number of days data is kept in the index
      */
     int getRetentionPeriod();
+
+    interface IIndexType {}
 }

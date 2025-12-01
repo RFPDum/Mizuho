@@ -3,6 +3,7 @@ package com.mizuho.matsuri.service.impl;
 import com.mizuho.matsuri.pricestore.data.IPricePersistenceService;
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 import com.mizuho.matsuri.pricestore.service.IDataCache;
+import com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache;
 import com.mizuho.matsuri.pricestore.service.impl.PriceRepositoryService;
 import org.junit.jupiter.api.Test;
 import org.mockito.verification.VerificationMode;
@@ -10,8 +11,8 @@ import org.mockito.verification.VerificationMode;
 import java.util.Collection;
 import java.util.List;
 
-import static com.mizuho.matsuri.pricestore.service.impl.InstrumentDataCache.IndexType.ISIN;
-import static com.mizuho.matsuri.pricestore.service.impl.InstrumentDataCache.IndexType.VENDOR;
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.ISIN;
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.VENDOR;
 import static com.mizuho.matsuri.testutils.InstrumentPriceUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -19,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 
 public class PriceRepositoryServiceTest {
-    private final IDataCache priceCache              = mock(IDataCache.class);
+    private final IDataCache<InstrumentPrice, InstrumentPriceCache.IndexType> priceCache = mock(IDataCache.class);
     private final IPricePersistenceService pricePersistenceService = mock(IPricePersistenceService.class);
 
     private static final int RETENTION_PERIOD = 30;

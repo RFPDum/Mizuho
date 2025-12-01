@@ -3,6 +3,7 @@ package com.mizuho.matsuri.pricestore.service.impl;
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 import com.mizuho.matsuri.pricestore.service.IDataCache;
 import com.mizuho.matsuri.pricestore.service.InstrumentPriceCacheProperties;
+import com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ import static com.mizuho.matsuri.pricestore.utils.Util.getCutOffDate;
 import static com.mizuho.matsuri.pricestore.utils.Util.isStale;
 
 @Service
-public class InstrumentDataCache implements IDataCache<InstrumentPrice> {
+public class InstrumentPriceCache implements IDataCache<InstrumentPrice, IndexType> {
     private final int retentionPeriodInDays;
 
     private final List<Map<String, PriceSet>> prices;
@@ -23,7 +24,7 @@ public class InstrumentDataCache implements IDataCache<InstrumentPrice> {
      * Constructor creates Instrument Price Cache
      * @param properties cache properties
      */
-    public InstrumentDataCache(InstrumentPriceCacheProperties properties) {
+    public InstrumentPriceCache(InstrumentPriceCacheProperties properties) {
         retentionPeriodInDays = properties.getRetentionPeriodInDays();
         prices                = initialiseIndexes();
     }
@@ -39,7 +40,6 @@ public class InstrumentDataCache implements IDataCache<InstrumentPrice> {
 
     @Override
     public void indexData(InstrumentPrice price) {
-
         for (IndexType indexType : IndexType.values()) {
             addPrice(price, indexType);
         }
@@ -96,7 +96,7 @@ public class InstrumentDataCache implements IDataCache<InstrumentPrice> {
         }
     }
 
-    public enum IndexType {
+    public enum IndexType implements IIndexType {
         ISIN(0, InstrumentPrice::isin),
         VENDOR(1, InstrumentPrice::vendorId);
 

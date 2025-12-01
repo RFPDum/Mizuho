@@ -9,13 +9,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
-import static com.mizuho.matsuri.pricestore.service.impl.InstrumentDataCache.IndexType.ISIN;
-import static com.mizuho.matsuri.pricestore.service.impl.InstrumentDataCache.IndexType.VENDOR;
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.ISIN;
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.VENDOR;
 
 @Service
 @AllArgsConstructor
 public class PriceRepositoryService implements IPriceRepositoryService<InstrumentPrice> {
-    private final IDataCache<InstrumentPrice> priceCache;
+    private final IDataCache<InstrumentPrice, InstrumentPriceCache.IndexType> priceCache;
     private final IPricePersistenceService pricePersistenceService;
 
     @Override
