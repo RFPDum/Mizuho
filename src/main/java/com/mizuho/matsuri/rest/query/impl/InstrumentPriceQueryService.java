@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class InstrumentPriceQueryService {
-    private final IPriceRepositoryService priceRepositoryService;
+    private final IPriceRepositoryService<InstrumentPrice> priceRepositoryService;
 
     public InstrumentPriceInfo[] getInstrumentPrices(String isin) {
         return priceRepositoryService.retrievePricesForIsin(isin)

@@ -1,7 +1,7 @@
 package com.mizuho.matsuri.pricestore.service.impl;
 
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
-import com.mizuho.matsuri.pricestore.service.IPriceIndexer;
+import com.mizuho.matsuri.pricestore.service.IDataCache;
 import com.mizuho.matsuri.pricestore.data.IPricePersistenceService;
 import com.mizuho.matsuri.pricestore.service.IPriceRepositoryService;
 import lombok.AllArgsConstructor;
@@ -9,29 +9,29 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
-import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.ISIN;
-import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.VENDOR;
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentDataCache.IndexType.ISIN;
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentDataCache.IndexType.VENDOR;
 
 @Service
 @AllArgsConstructor
-public class PriceRepositoryService implements IPriceRepositoryService {
-    private final IPriceIndexer            priceCache;
+public class PriceRepositoryService implements IPriceRepositoryService<InstrumentPrice> {
+    private final IDataCache<InstrumentPrice> priceCache;
     private final IPricePersistenceService pricePersistenceService;
 
     @Override
     public void acceptPriceData(InstrumentPrice instrumentPrice) {
-        priceCache.indexPrice(instrumentPrice);
+        priceCache.indexData(instrumentPrice);
         pricePersistenceService.storeInstrumentPrice(instrumentPrice);
     }
 
     @Override
     public Collection<InstrumentPrice> retrievePricesForIsin(String isin) {
-        return priceCache.getInstrumentPrices(ISIN, isin);
+        return priceCache.getData(ISIN, isin);
     }
 
     @Override
     public Collection<InstrumentPrice> retrieveVendorPrices(String vendorId) {
-        return priceCache.getInstrumentPrices(VENDOR, vendorId);
+        return priceCache.getData(VENDOR, vendorId);
     }
 
     @Override

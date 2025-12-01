@@ -1,7 +1,7 @@
 package com.mizuho.matsuri.pricestore.service.impl;
 
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
-import com.mizuho.matsuri.pricestore.service.IPriceIndexer;
+import com.mizuho.matsuri.pricestore.service.IDataCache;
 import com.mizuho.matsuri.pricestore.service.InstrumentPriceCacheProperties;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import static com.mizuho.matsuri.pricestore.utils.Util.getCutOffDate;
 import static com.mizuho.matsuri.pricestore.utils.Util.isStale;
 
 @Service
-public class InstrumentPriceCache implements IPriceIndexer {
+public class InstrumentDataCache implements IDataCache<InstrumentPrice> {
     private final int retentionPeriodInDays;
 
     private final List<Map<String, PriceSet>> prices;
@@ -23,7 +23,7 @@ public class InstrumentPriceCache implements IPriceIndexer {
      * Constructor creates Instrument Price Cache
      * @param properties cache properties
      */
-    public InstrumentPriceCache(InstrumentPriceCacheProperties properties) {
+    public InstrumentDataCache(InstrumentPriceCacheProperties properties) {
         retentionPeriodInDays = properties.getRetentionPeriodInDays();
         prices                = initialiseIndexes();
     }
@@ -38,7 +38,8 @@ public class InstrumentPriceCache implements IPriceIndexer {
     }
 
     @Override
-    public void indexPrice(InstrumentPrice price) {
+    public void indexData(InstrumentPrice price) {
+
         for (IndexType indexType : IndexType.values()) {
             addPrice(price, indexType);
         }
@@ -50,11 +51,11 @@ public class InstrumentPriceCache implements IPriceIndexer {
 
     @Override
     public void rebuildIndex(Collection<InstrumentPrice> prices) {
-        prices.forEach(this::indexPrice);
+        prices.forEach(this::indexData);
     }
 
     @Override
-    public Collection<InstrumentPrice> getInstrumentPrices(IndexType indexType, String indexKey) {
+    public Collection<InstrumentPrice> getData(IndexType indexType, String indexKey) {
         return getPriceSet(indexType, indexKey).getPrices();
     }
 

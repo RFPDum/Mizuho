@@ -4,17 +4,20 @@ import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 
 import java.util.Collection;
 
-public interface IPriceRepositoryService {
-    void acceptPriceData(InstrumentPrice instrumentPrice);
+public interface IPriceRepositoryService<T> {
+    void acceptPriceData(T instrumentPrice);
 
-    Collection<InstrumentPrice> retrievePricesForIsin(String isin);
+    Collection<T> retrievePricesForIsin(String isin);
 
-    Collection<InstrumentPrice> retrieveVendorPrices(String vendorId);
+    Collection<T> retrieveVendorPrices(String vendorId);
 
     /**
      * Rebuild price cache from persistent data storage
      */
     void rebuildPriceCache();
 
+    /**
+     * Remove obsolete items from the cache underlying the service
+     */
     void purgeCache();
 }

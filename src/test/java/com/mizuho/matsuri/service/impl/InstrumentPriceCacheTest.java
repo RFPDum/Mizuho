@@ -1,10 +1,10 @@
 package com.mizuho.matsuri.service.impl;
 
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
-import com.mizuho.matsuri.pricestore.service.IPriceIndexer;
+import com.mizuho.matsuri.pricestore.service.IDataCache;
 import com.mizuho.matsuri.pricestore.service.InstrumentPriceCacheProperties;
-import com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache;
-import com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.PriceSet;
+import com.mizuho.matsuri.pricestore.service.impl.InstrumentDataCache;
+import com.mizuho.matsuri.pricestore.service.impl.InstrumentDataCache.PriceSet;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.ISIN;
-import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.VENDOR;
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentDataCache.IndexType.ISIN;
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentDataCache.IndexType.VENDOR;
 import static com.mizuho.matsuri.testutils.InstrumentPriceUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,7 +27,7 @@ public class InstrumentPriceCacheTest {
     public void should_return_set_retention_period_when_getRetentionPeriod_is_called() {
         // Given
         final int retentionPeriodInDays = 30;
-        final IPriceIndexer indexer     = new InstrumentPriceCache(ofInstrumentPriceCacheProperties(retentionPeriodInDays));
+        final IDataCache indexer     = new InstrumentDataCache(ofInstrumentPriceCacheProperties(retentionPeriodInDays));
 
         // When
         final int returnedRetentionPeriod = indexer.getRetentionPeriod();
@@ -45,10 +45,10 @@ public class InstrumentPriceCacheTest {
     @Test
     public void should_return_an_empty_collection_when_attempting_to_get_prices_from_a_vendor_when_none_are_present() {
         // Given
-        final IPriceIndexer indexer = ofInstrumentPriceCache();
+        final IDataCache indexer = ofInstrumentPriceCache();
 
         // When
-        final Collection<InstrumentPrice> vendorPrices = indexer.getInstrumentPrices(VENDOR, VENDOR_1);
+        final Collection<InstrumentPrice> vendorPrices = indexer.getData(VENDOR, VENDOR_1);
 
         // Then
         assertThat(vendorPrices).isEmpty();
@@ -57,11 +57,11 @@ public class InstrumentPriceCacheTest {
     @Test
     public void should_return_an_empty_collection_when_attempting_to_get_prices_for_an_instrument_when_none_are_present() {
         // Given
-        final IPriceIndexer indexer = ofInstrumentPriceCache();
+        final IDataCache indexer = ofInstrumentPriceCache();
         final String vendor         = "Bloomberg";
 
         // When
-        final Collection<InstrumentPrice> vendorPrices = indexer.getInstrumentPrices(VENDOR, vendor);
+        final Collection<InstrumentPrice> vendorPrices = indexer.getData(VENDOR, vendor);
 
         // Then
         assertThat(vendorPrices).isEmpty();
@@ -71,10 +71,10 @@ public class InstrumentPriceCacheTest {
     public void should_return_the_instrument_price_from_a_vendor_when_there_is_only_one_price_for_that_vendor() {
         // Given
         final InstrumentPrice price = ofInstrumentPrice(ISIN_1, VENDOR_1);
-        final IPriceIndexer indexer = ofInstrumentPriceCache(price);
+        final IDataCache indexer = ofInstrumentPriceCache(price);
 
         // When
-        final Collection<InstrumentPrice> prices = indexer.getInstrumentPrices(VENDOR, VENDOR_1);
+        final Collection<InstrumentPrice> prices = indexer.getData(VENDOR, VENDOR_1);
 
         // Then
         assertThat(prices).usingFieldByFieldElementComparator().containsOnly(price);
@@ -84,10 +84,10 @@ public class InstrumentPriceCacheTest {
     public void should_return_the_instrument_price_for_a_given_isin_when_there_is_only_one_price_for_that_instrument() {
         // Given
         final InstrumentPrice price = ofInstrumentPrice(ISIN_1, VENDOR_1);
-        final IPriceIndexer indexer = ofInstrumentPriceCache(price);
+        final IDataCache indexer = ofInstrumentPriceCache(price);
 
         // When
-        final Collection<InstrumentPrice> prices = indexer.getInstrumentPrices(ISIN, ISIN_1);
+        final Collection<InstrumentPrice> prices = indexer.getData(ISIN, ISIN_1);
 
         // Then
         assertThat(prices).containsOnly(price);
@@ -99,25 +99,25 @@ public class InstrumentPriceCacheTest {
         final List<InstrumentPrice> isin1Prices = ofInstrumentPricesForIsin(ISIN_1);
         final List<InstrumentPrice> isin2Prices = ofInstrumentPricesForIsin(ISIN_2);
 
-        final IPriceIndexer indexer = ofInstrumentPriceCache();
+        final IDataCache indexer = ofInstrumentPriceCache();
 
         // When
         for(InstrumentPrice price : isin1Prices) {
-            indexer.indexPrice(price);
+            indexer.indexData(price);
         }
         for(InstrumentPrice price : isin2Prices) {
-            indexer.indexPrice(price);
+            indexer.indexData(price);
         }
 
         // Then
-        assertThat(indexer.getInstrumentPrices(ISIN, ISIN_1)).containsExactlyInAnyOrderElementsOf(isin1Prices);
-        assertThat(indexer.getInstrumentPrices(ISIN, ISIN_2)).containsExactlyInAnyOrderElementsOf(isin2Prices);
+        assertThat(indexer.getData(ISIN, ISIN_1)).containsExactlyInAnyOrderElementsOf(isin1Prices);
+        assertThat(indexer.getData(ISIN, ISIN_2)).containsExactlyInAnyOrderElementsOf(isin2Prices);
     }
 
     @Test
     public void should_return_stored_prices_in_chronological_order_when_calling_getVendorPrices() {
         // Given
-        final IPriceIndexer indexer  = ofInstrumentPriceCache();
+        final IDataCache indexer  = ofInstrumentPriceCache();
         final InstrumentPrice price1 = ofVendor2InstrumentPrice(ISIN_1, DAY);
         final InstrumentPrice price2 = ofVendor2InstrumentPrice(ISIN_2, DAY_MIN_1);
         final InstrumentPrice price3 = ofVendor2InstrumentPrice(ISIN_1, DAY_MIN_5);
@@ -137,7 +137,7 @@ public class InstrumentPriceCacheTest {
                 price1);
 
         // When
-        final Collection<InstrumentPrice> vendorPrices = indexer.getInstrumentPrices(VENDOR, VENDOR_2);
+        final Collection<InstrumentPrice> vendorPrices = indexer.getData(VENDOR, VENDOR_2);
 
         // Then
         assertThat(vendorPrices).containsExactlyElementsOf(expResult);
@@ -146,7 +146,7 @@ public class InstrumentPriceCacheTest {
     @Test
     public void should_return_stored_prices_in_chronological_order_when_calling_getInstrumentPrices() {
         // Given
-        final IPriceIndexer indexer  = ofInstrumentPriceCache();
+        final IDataCache indexer  = ofInstrumentPriceCache();
         final InstrumentPrice price1 = ofIsin1InstrumentPrice(VENDOR_1, DAY);
         final InstrumentPrice price2 = ofIsin1InstrumentPrice(VENDOR_2, DAY_MIN_1);
         final InstrumentPrice price3 = ofIsin1InstrumentPrice(VENDOR_1, DAY_MIN_5);
@@ -166,7 +166,7 @@ public class InstrumentPriceCacheTest {
                 price1);
 
         // When
-        final Collection<InstrumentPrice> vendorPrices = indexer.getInstrumentPrices(ISIN, ISIN_1);
+        final Collection<InstrumentPrice> vendorPrices = indexer.getData(ISIN, ISIN_1);
 
         // Then
         assertThat(vendorPrices).containsExactlyElementsOf(expResult);
@@ -178,25 +178,25 @@ public class InstrumentPriceCacheTest {
         final List<InstrumentPrice> pr1Prices = ofInstrumentPricesForVendor(VENDOR_1);
         final List<InstrumentPrice> pr3Prices = ofInstrumentPricesForVendor(VENDOR_2);
 
-        final IPriceIndexer indexer = ofInstrumentPriceCache();
+        final IDataCache indexer = ofInstrumentPriceCache();
 
         // When
         for(InstrumentPrice price : pr1Prices) {
-            indexer.indexPrice(price);
+            indexer.indexData(price);
         }
         for(InstrumentPrice price : pr3Prices) {
-            indexer.indexPrice(price);
+            indexer.indexData(price);
         }
 
         // Then
-        assertThat(indexer.getInstrumentPrices(VENDOR, VENDOR_1)).containsExactlyInAnyOrderElementsOf(pr1Prices);
-        assertThat(indexer.getInstrumentPrices(VENDOR, VENDOR_2)).containsExactlyInAnyOrderElementsOf(pr3Prices);
+        assertThat(indexer.getData(VENDOR, VENDOR_1)).containsExactlyInAnyOrderElementsOf(pr1Prices);
+        assertThat(indexer.getData(VENDOR, VENDOR_2)).containsExactlyInAnyOrderElementsOf(pr3Prices);
     }
 
     @Test
     public void should_rebuild_index_with_passed_prices_when_rebuild_index_is_called() {
         // Given
-        final IPriceIndexer indexer = ofInstrumentPriceCache();
+        final IDataCache indexer = ofInstrumentPriceCache();
         final List<InstrumentPrice> prices = ofInstrumentPricesForVendor(VENDOR_1);
         final Map<String, List<InstrumentPrice>> pricesByIsin = prices.stream().collect(Collectors.groupingBy(InstrumentPrice::isin));
 
@@ -204,20 +204,20 @@ public class InstrumentPriceCacheTest {
         indexer.rebuildIndex(prices);
 
         // Then
-        assertThat(indexer.getInstrumentPrices(VENDOR, VENDOR_1)).containsExactlyInAnyOrderElementsOf(prices);
-        pricesByIsin.forEach((key, value) -> assertThat(indexer.getInstrumentPrices(ISIN, key)).containsExactlyInAnyOrderElementsOf(value));
+        assertThat(indexer.getData(VENDOR, VENDOR_1)).containsExactlyInAnyOrderElementsOf(prices);
+        pricesByIsin.forEach((key, value) -> assertThat(indexer.getData(ISIN, key)).containsExactlyInAnyOrderElementsOf(value));
     }
 
     @Test
     public void should_return_an_empty_collection_when_calling_ofInstrumentPricesForVendor_for_a_non_existent_vendor() {
         // Given
-        final IPriceIndexer indexer        = ofInstrumentPriceCache();
+        final IDataCache indexer        = ofInstrumentPriceCache();
         final List<InstrumentPrice> prices = ofInstrumentPricesForVendor(VENDOR_1);
         final String missingVendor         = "NotPresent";
         indexer.rebuildIndex(prices);
 
         // When
-        final Collection<InstrumentPrice> vendorPrices = indexer.getInstrumentPrices(VENDOR, missingVendor);
+        final Collection<InstrumentPrice> vendorPrices = indexer.getData(VENDOR, missingVendor);
 
         // Then
         assertThat(vendorPrices).isEmpty();
@@ -226,12 +226,12 @@ public class InstrumentPriceCacheTest {
     @Test
     public void should_return_an_empty_collection_when_calling_getInstrumentPrices_for_a_non_existent_vendor() {
         // Given
-        final IPriceIndexer indexer = ofInstrumentPriceCache();
+        final IDataCache indexer = ofInstrumentPriceCache();
         final List<InstrumentPrice> prices = ofInstrumentPricesForIsin(ISIN_3);
         indexer.rebuildIndex(prices);
 
         // When
-        final Collection<InstrumentPrice> vendorPrices = indexer.getInstrumentPrices(ISIN, "NotPresent");
+        final Collection<InstrumentPrice> vendorPrices = indexer.getData(ISIN, "NotPresent");
 
         // Then
         assertThat(vendorPrices).isEmpty();
@@ -240,7 +240,7 @@ public class InstrumentPriceCacheTest {
     @Test
     public void should_purge_all_prices_older_than_30_days_when_purge_is_called_check_by_vendor() {
         // Given
-        final IPriceIndexer indexer  = ofInstrumentPriceCache();
+        final IDataCache indexer  = ofInstrumentPriceCache();
         final InstrumentPrice price1 = ofVendor2InstrumentPrice(ISIN_1, DAY);
         final InstrumentPrice price2 = ofVendor2InstrumentPrice(ISIN_2, DAY_MIN_1);
         final InstrumentPrice price3 = ofVendor2InstrumentPrice(ISIN_1, DAY_MIN_5);
@@ -253,7 +253,7 @@ public class InstrumentPriceCacheTest {
                 price4,
                 price5);
         indexer.rebuildIndex(prices);
-        assertThat(indexer.getInstrumentPrices(VENDOR, VENDOR_2)).containsExactlyInAnyOrderElementsOf(prices);
+        assertThat(indexer.getData(VENDOR, VENDOR_2)).containsExactlyInAnyOrderElementsOf(prices);
 
         final List<InstrumentPrice> expectedRetained = List.of(price1, price2, price3);
 
@@ -261,14 +261,14 @@ public class InstrumentPriceCacheTest {
         indexer.purge();
 
         // Then
-        assertThat(indexer.getInstrumentPrices(VENDOR, VENDOR_2)).containsExactlyInAnyOrderElementsOf(expectedRetained);
+        assertThat(indexer.getData(VENDOR, VENDOR_2)).containsExactlyInAnyOrderElementsOf(expectedRetained);
     }
 
 
     @Test
     public void should_purge_all_prices_older_than_30_days_when_purge_is_called_check_by_isin() {
         // Given
-        final IPriceIndexer indexer = ofInstrumentPriceCache();
+        final IDataCache indexer = ofInstrumentPriceCache();
         final InstrumentPrice price1 = ofIsin1InstrumentPrice(VENDOR_1, DAY);
         final InstrumentPrice price2 = ofIsin1InstrumentPrice(VENDOR_2, DAY_MIN_1);
         final InstrumentPrice price3 = ofIsin1InstrumentPrice(VENDOR_1, DAY_MIN_5);
@@ -281,7 +281,7 @@ public class InstrumentPriceCacheTest {
                 price4,
                 price5);
         indexer.rebuildIndex(prices);
-        assertThat(indexer.getInstrumentPrices(ISIN, ISIN_1)).containsExactlyInAnyOrderElementsOf(prices);
+        assertThat(indexer.getData(ISIN, ISIN_1)).containsExactlyInAnyOrderElementsOf(prices);
 
         final List<InstrumentPrice> expectedRetained = List.of(price1, price2, price3);
 
@@ -289,7 +289,7 @@ public class InstrumentPriceCacheTest {
         indexer.purge();
 
         // Then
-        assertThat(indexer.getInstrumentPrices(ISIN, ISIN_1)).containsExactlyInAnyOrderElementsOf(expectedRetained);
+        assertThat(indexer.getData(ISIN, ISIN_1)).containsExactlyInAnyOrderElementsOf(expectedRetained);
     }
 
     private InstrumentPrice ofVendor2InstrumentPrice(String isin, LocalDateTime priceTime) {
@@ -300,13 +300,13 @@ public class InstrumentPriceCacheTest {
         return ofInstrumentPrice(ISIN_1, vendorId, priceTime);
     }
 
-    private IPriceIndexer ofInstrumentPriceCache() {
+    private IDataCache ofInstrumentPriceCache() {
         return ofInstrumentPriceCache(null);
     }
 
-    private IPriceIndexer ofInstrumentPriceCache(InstrumentPrice price) {
+    private IDataCache ofInstrumentPriceCache(InstrumentPrice price) {
         final InstrumentPriceCacheProperties properties = ofInstrumentPriceCacheProperties(DATA_RETENTION_DAYS);
-        final IPriceIndexer                  indexer    = new InstrumentPriceCache(properties);
+        final IDataCache indexer    = new InstrumentDataCache(properties);
 
         if (price != null) {
             final Map<String, PriceSet> priceByInstrument = getPriceMap(indexer, 0);
@@ -323,7 +323,7 @@ public class InstrumentPriceCacheTest {
         return priceSet;
     }
 
-    private Map<String, PriceSet> getPriceMap(IPriceIndexer indexer, int index) {
+    private Map<String, PriceSet> getPriceMap(IDataCache indexer, int index) {
         return ((List<Map<String, PriceSet>>) ReflectionTestUtils.getField(indexer, "prices")).get(index);
     }
 }

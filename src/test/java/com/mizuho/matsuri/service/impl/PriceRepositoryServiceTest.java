@@ -2,7 +2,7 @@ package com.mizuho.matsuri.service.impl;
 
 import com.mizuho.matsuri.pricestore.data.IPricePersistenceService;
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
-import com.mizuho.matsuri.pricestore.service.IPriceIndexer;
+import com.mizuho.matsuri.pricestore.service.IDataCache;
 import com.mizuho.matsuri.pricestore.service.impl.PriceRepositoryService;
 import org.junit.jupiter.api.Test;
 import org.mockito.verification.VerificationMode;
@@ -10,8 +10,8 @@ import org.mockito.verification.VerificationMode;
 import java.util.Collection;
 import java.util.List;
 
-import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.ISIN;
-import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.VENDOR;
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentDataCache.IndexType.ISIN;
+import static com.mizuho.matsuri.pricestore.service.impl.InstrumentDataCache.IndexType.VENDOR;
 import static com.mizuho.matsuri.testutils.InstrumentPriceUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 
 public class PriceRepositoryServiceTest {
-    private final IPriceIndexer            priceCache              = mock(IPriceIndexer.class);
+    private final IDataCache priceCache              = mock(IDataCache.class);
     private final IPricePersistenceService pricePersistenceService = mock(IPricePersistenceService.class);
 
     private static final int RETENTION_PERIOD = 30;
@@ -37,9 +37,9 @@ public class PriceRepositoryServiceTest {
         service.acceptPriceData(price2);
 
         // Then
-        verify(priceCache, twice()).indexPrice(any(InstrumentPrice.class));
-        verify(priceCache).indexPrice(price1);
-        verify(priceCache).indexPrice(price2);
+        verify(priceCache, twice()).indexData(any(InstrumentPrice.class));
+        verify(priceCache).indexData(price1);
+        verify(priceCache).indexData(price2);
 
         verify(pricePersistenceService, twice()).storeInstrumentPrice(any(InstrumentPrice.class));
         verify(pricePersistenceService).storeInstrumentPrice(price1);
@@ -84,7 +84,7 @@ public class PriceRepositoryServiceTest {
         service.retrieveVendorPrices(VENDOR_1);
 
         // Then
-        verify(priceCache).getInstrumentPrices(VENDOR, VENDOR_1);
+        verify(priceCache).getData(VENDOR, VENDOR_1);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class PriceRepositoryServiceTest {
         final Collection<InstrumentPrice> prices = service.retrievePricesForIsin(ISIN_1);
 
         // Then
-        verify(priceCache).getInstrumentPrices(ISIN, ISIN_1);
+        verify(priceCache).getData(ISIN, ISIN_1);
         assertThat(prices).isNotNull();
     }
 
