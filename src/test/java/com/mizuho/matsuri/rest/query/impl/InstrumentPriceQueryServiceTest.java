@@ -1,8 +1,9 @@
 package com.mizuho.matsuri.rest.query.impl;
 
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
-import com.mizuho.matsuri.pricestore.service.IPriceRepositoryService;
+import com.mizuho.matsuri.pricestore.service.impl.PriceRepositoryService;
 import com.mizuho.matsuri.rest.feed.model.InstrumentPriceInfo;
+import com.mizuho.matsuri.rest.util.InstrumentPriceAdapter;
 import com.mizuho.matsuri.rest.util.ResponseUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,8 @@ class InstrumentPriceQueryServiceTest {
     private static final double                      PRICE_AMOUNT           = 789.44d;
     private static final LocalDateTime               DATE_TIME              = LocalDateTime.now();
 
-    private final IPriceRepositoryService priceRepositoryService = mock(IPriceRepositoryService.class);
+    private final InstrumentPriceAdapter priceAdapter           = new InstrumentPriceAdapter();
+    private final PriceRepositoryService priceRepositoryService = mock(PriceRepositoryService.class);
 
     @Test
     void should_call_price_repository_service_purgeCache_when_purgeOldPrices_is_called() {
@@ -70,7 +72,7 @@ class InstrumentPriceQueryServiceTest {
     private InstrumentPriceQueryService ofInstrumentPriceQueryService() {
         doReturn(INSTRUMENT_PRICES).when(priceRepositoryService).retrieveVendorPrices(VENDOR_1);
         doReturn(INSTRUMENT_PRICES).when(priceRepositoryService).retrievePricesForIsin(ISIN_1);
-        return new InstrumentPriceQueryService(priceRepositoryService);
+        return new InstrumentPriceQueryService(priceRepositoryService, priceAdapter);
     }
 
     private static Collection<InstrumentPrice> ofInstrumentPrices() {
