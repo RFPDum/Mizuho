@@ -11,8 +11,17 @@ import java.time.format.DateTimeParseException;
 import java.util.Collection;
 
 @Component
+/**
+ * Convert between InstrumentPrice and InstrumentPriceUpdateRequest/InstrumentPriceInfo performing input validation.
+ */
 public class InstrumentPriceAdapter {
 
+    /**
+     * Convert a price update request to an InstrumetPrice object
+     * @param priceUpdateRequest price request
+     * @return price request data as an InstrumentPrice object
+     * @throws PriceValidationException if price request data is invalid
+     */
     public InstrumentPrice toInstrumentPrice(InstrumentPriceUpdateRequest priceUpdateRequest) throws PriceValidationException {
         return new InstrumentPrice(
                 getMandatoryString(priceUpdateRequest.getIsin(), "ISIN"),
@@ -23,6 +32,11 @@ public class InstrumentPriceAdapter {
         );
     }
 
+    /**
+     * Converts a collection of InstrumentPrice to an array of InstrumentPriceInfo
+     * @param instrumentPrices prices to convert
+     * @return price data as an array of InstrumentPriceInfo
+     */
     public InstrumentPriceInfo[] toInstrumentPriceInfos(Collection<InstrumentPrice> instrumentPrices) {
         return instrumentPrices
                 .stream()
@@ -30,6 +44,11 @@ public class InstrumentPriceAdapter {
                 .toArray(InstrumentPriceInfo[]::new);
     }
 
+    /**
+     * Converts an InstrumentPrice to an InstrumentPriceInfo
+     * @param instrumentPrice price to convert
+     * @return converted object
+     */
     public InstrumentPriceInfo toInstrumentPriceInfo(InstrumentPrice instrumentPrice) {
         return new InstrumentPriceInfo(instrumentPrice.vendorId(),
                 instrumentPrice.isin(),

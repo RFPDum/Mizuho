@@ -14,8 +14,7 @@ import static com.mizuho.matsuri.rest.util.ResponseUtils.ofFailedResponse;
 import static com.mizuho.matsuri.rest.util.ResponseUtils.ofOKResponse;
 import static com.mizuho.matsuri.testutils.InstrumentPriceUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 class InstrumentPriceFeedServiceTest {
     private static final double        PRICE_AMOUNT = 8450.56d;
@@ -68,6 +67,21 @@ class InstrumentPriceFeedServiceTest {
         assertThat(response).isEqualTo(expectedResponse);
     }
 
+    @Test
+    void should_return_FailedResponse_response_when_price_cache_throws_an_exception() throws PriceRepositoryValidationException {
+        // Given
+        final InstrumentPriceFeedService   service            = ofInstrumentPriceFeedService();
+        final InstrumentPriceUpdateRequest priceUpdateRequest = ofPriceUpdateRequest(PRICE_DATE);
+        final ResponseEntity<String>       expectedResponse   = ofFailedResponse(null);
+        doThrow(PriceRepositoryValidationException.class)
+                .when(priceRepositoryService).acceptPriceData(any(InstrumentPrice.class));
+
+        // When
+        final ResponseEntity<String> response = service.addPriceUpdate(priceUpdateRequest);
+
+        // Then
+        assertThat(response).isEqualTo(expectedResponse);
+    }
 
     private InstrumentPriceUpdateRequest ofPriceUpdateRequest(String priceDate) {
         final InstrumentPriceUpdateRequest request = new InstrumentPriceUpdateRequest();
