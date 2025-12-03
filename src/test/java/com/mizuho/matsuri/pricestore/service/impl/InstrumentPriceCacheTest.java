@@ -1,8 +1,7 @@
-package com.mizuho.matsuri.service.impl;
+package com.mizuho.matsuri.pricestore.service.impl;
 
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 import com.mizuho.matsuri.pricestore.service.InstrumentPriceCacheProperties;
-import com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache;
 import com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.PriceSet;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;

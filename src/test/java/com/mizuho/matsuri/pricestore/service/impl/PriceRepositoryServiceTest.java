@@ -1,10 +1,8 @@
-package com.mizuho.matsuri.service.impl;
+package com.mizuho.matsuri.pricestore.service.impl;
 
 import com.mizuho.matsuri.pricestore.data.IPricePersistenceService;
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 import com.mizuho.matsuri.pricestore.service.IDataCache;
-import com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache;
-import com.mizuho.matsuri.pricestore.service.impl.PriceRepositoryService;
 import org.junit.jupiter.api.Test;
 import org.mockito.verification.VerificationMode;
 
