@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 class InstrumentPriceAdapterTest {
     private static final String        ISIN       = "US456456465";
@@ -64,5 +65,65 @@ class InstrumentPriceAdapterTest {
 
         // Then
         assertThat(instrumentPrice).isEqualTo(expected);
+    }
+
+    @Test
+    void should_throw_a_PriceValidationException_if_attempting_to_convert_data_without_price() {
+        // Given
+        final InstrumentPriceUpdateRequest priceUpdateRequest
+                = new InstrumentPriceUpdateRequest(VENDOR, ISIN, USD, null, PRICE_DATE);
+
+        // When/Then
+        assertThatThrownBy(() -> instrumentPriceAdapter.toInstrumentPrice(priceUpdateRequest))
+                .isInstanceOf(PriceValidationException.class)
+                .hasMessage("Missing mandatory attribute price");
+    }
+
+    @Test
+    void should_throw_a_PriceValidationException_if_attempting_to_convert_data_without_isin() {
+        // Given
+        final InstrumentPriceUpdateRequest priceUpdateRequest
+                = new InstrumentPriceUpdateRequest(VENDOR, "", USD, 5444d, PRICE_DATE);
+
+        // When/Then
+        assertThatThrownBy(() -> instrumentPriceAdapter.toInstrumentPrice(priceUpdateRequest))
+                .isInstanceOf(PriceValidationException.class)
+                .hasMessage("Missing mandatory attribute ISIN");
+    }
+
+    @Test
+    void should_throw_a_PriceValidationException_if_attempting_to_convert_data_without_currency() {
+        // Given
+        final InstrumentPriceUpdateRequest priceUpdateRequest
+                = new InstrumentPriceUpdateRequest(VENDOR, ISIN, null, 877d, PRICE_DATE);
+
+        // When/Then
+        assertThatThrownBy(() -> instrumentPriceAdapter.toInstrumentPrice(priceUpdateRequest))
+                .isInstanceOf(PriceValidationException.class)
+                .hasMessage("Missing mandatory attribute Currency");
+    }
+
+    @Test
+    void should_throw_a_PriceValidationException_if_attempting_to_convert_data_without_vendor() {
+        // Given
+        final InstrumentPriceUpdateRequest priceUpdateRequest
+                = new InstrumentPriceUpdateRequest("  ", ISIN, USD, 4545d, PRICE_DATE);
+
+        // When/Then
+        assertThatThrownBy(() -> instrumentPriceAdapter.toInstrumentPrice(priceUpdateRequest))
+                .isInstanceOf(PriceValidationException.class)
+                .hasMessage("Missing mandatory attribute VendorId");
+    }
+
+    @Test
+    void should_throw_a_PriceValidationException_if_attempting_to_convert_data_with_an_invalid_date() {
+        // Given
+        final InstrumentPriceUpdateRequest priceUpdateRequest
+                = new InstrumentPriceUpdateRequest(VENDOR, ISIN, USD, 878d, "31 January 25");
+
+        // When/Then
+        assertThatThrownBy(() -> instrumentPriceAdapter.toInstrumentPrice(priceUpdateRequest))
+                .isInstanceOf(PriceValidationException.class)
+                .hasMessage("'31 January 25' is not a valid date. Check format");
     }
 }

@@ -3,9 +3,11 @@ package com.mizuho.matsuri.pricestore.service.impl;
 import com.mizuho.matsuri.pricestore.data.IPricePersistenceService;
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 import com.mizuho.matsuri.pricestore.service.IDataCache;
+import com.mizuho.matsuri.pricestore.service.PriceRepositoryValidationException;
 import org.junit.jupiter.api.Test;
 import org.mockito.verification.VerificationMode;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -13,6 +15,7 @@ import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.In
 import static com.mizuho.matsuri.pricestore.service.impl.InstrumentPriceCache.IndexType.VENDOR;
 import static com.mizuho.matsuri.testutils.InstrumentPriceUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -24,7 +27,7 @@ public class PriceRepositoryServiceTest {
     private static final int RETENTION_PERIOD = 30;
 
     @Test
-    public void should_store_and_index_price_data_when_acceptPriceData_is_called() {
+    public void should_store_and_index_price_data_when_acceptPriceData_is_called() throws PriceRepositoryValidationException {
 
         // Given
         final PriceRepositoryService service = ofPriceRepoService();
@@ -43,6 +46,53 @@ public class PriceRepositoryServiceTest {
         verify(pricePersistenceService, twice()).storeInstrumentPrice(any(InstrumentPrice.class));
         verify(pricePersistenceService).storeInstrumentPrice(price1);
         verify(pricePersistenceService).storeInstrumentPrice(price2);
+    }
+
+    @Test
+    public void should_throw_a_PriceRepositoryValidationException_if_acceptPriceData_is_called_with_missing_isin() {
+        // Given
+        final PriceRepositoryService service = ofPriceRepoService();
+
+        // When/then
+        assertPriceUpdateStringValidation(service, null, "USD", "VD001", "ISIN");
+    }
+
+    @Test
+    public void should_throw_a_PriceRepositoryValidationException_if_acceptPriceData_is_called_with_missing_currency() {
+        // Given
+        final PriceRepositoryService service = ofPriceRepoService();
+
+        // When/then
+        assertPriceUpdateStringValidation(service, "GB454545", "", "VD001", "Currency");
+    }
+
+    @Test
+    public void should_throw_a_PriceRepositoryValidationException_if_acceptPriceData_is_called_with_missing_vendor_id() {
+        // Given
+        final PriceRepositoryService service = ofPriceRepoService();
+
+        // When/then
+        assertPriceUpdateStringValidation(service, "BR45454545", "USD", "", "VendorId");
+    }
+
+    private void assertPriceUpdateStringValidation(PriceRepositoryService service, String isin, String ccy, String vendorId, String fieldName) {
+        final InstrumentPrice price1 = new InstrumentPrice(isin, ccy, 455d, LocalDateTime.now(), vendorId);
+        assertThatThrownBy(() -> service.acceptPriceData(price1))
+                .isInstanceOf(PriceRepositoryValidationException.class)
+                .hasMessageContaining("should not be empty")
+                .hasMessageContaining(fieldName);
+    }
+
+    @Test
+    public void should_throw_a_PriceRepositoryValidationException_if_acceptPriceData_is_called_with_missing_time() {
+        // Given
+        final PriceRepositoryService service = ofPriceRepoService();
+
+        final InstrumentPrice price1 = new InstrumentPrice("Us78514414", "USD", 455d, null, "Bloomberg");
+        assertThatThrownBy(() -> service.acceptPriceData(price1))
+                .isInstanceOf(PriceRepositoryValidationException.class)
+                .hasMessageContaining("should not be null")
+                .hasMessageContaining("Date");
     }
 
     @Test

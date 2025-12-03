@@ -3,9 +3,7 @@ package com.mizuho.matsuri.rest.util;
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 import com.mizuho.matsuri.rest.feed.exception.PriceValidationException;
 import com.mizuho.matsuri.rest.feed.model.InstrumentPriceInfo;
-import com.mizuho.matsuri.rest.query.impl.InstrumentPriceQueryService;
 import com.mizuho.matsuri.rest.query.model.InstrumentPriceUpdateRequest;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -17,11 +15,11 @@ public class InstrumentPriceAdapter {
 
     public InstrumentPrice toInstrumentPrice(InstrumentPriceUpdateRequest priceUpdateRequest) throws PriceValidationException {
         return new InstrumentPrice(
-                priceUpdateRequest.getIsin(),
-                priceUpdateRequest.getCurrency(),
-                priceUpdateRequest.getPrice(),
+                getMandatoryString(priceUpdateRequest.getIsin(), "ISIN"),
+                getMandatoryString(priceUpdateRequest.getCurrency(), "Currency"),
+                getPrice(priceUpdateRequest.getPrice()),
                 parsePriceDate(priceUpdateRequest.getPriceDate()),
-                priceUpdateRequest.getVendorId()
+                getMandatoryString(priceUpdateRequest.getVendorId(), "VendorId")
         );
     }
 
@@ -38,6 +36,20 @@ public class InstrumentPriceAdapter {
                 instrumentPrice.currency(),
                 instrumentPrice.price(),
                 instrumentPrice.priceDate());
+    }
+
+    private static double getPrice(Double price) throws PriceValidationException {
+        if (price == null) {
+            throw new PriceValidationException("Missing mandatory attribute price");
+        }
+        return price;
+    }
+
+    private static String getMandatoryString(String attribute, String attributeName) throws PriceValidationException {
+        if (attribute == null || attribute.isBlank()) {
+            throw new PriceValidationException("Missing mandatory attribute " + attributeName);
+        }
+        return attribute;
     }
 
     private LocalDateTime parsePriceDate(String priceDate) throws PriceValidationException {

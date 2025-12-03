@@ -1,6 +1,7 @@
 package com.mizuho.matsuri.rest.feed.impl;
 
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
+import com.mizuho.matsuri.pricestore.service.PriceRepositoryValidationException;
 import com.mizuho.matsuri.pricestore.service.impl.PriceRepositoryService;
 import com.mizuho.matsuri.rest.query.model.InstrumentPriceUpdateRequest;
 import com.mizuho.matsuri.rest.util.InstrumentPriceAdapter;
@@ -25,7 +26,7 @@ class InstrumentPriceFeedServiceTest {
     private final PriceRepositoryService priceRepositoryService = mock(PriceRepositoryService.class);
 
     @Test
-    void should_call_price_repository_service_acceptPriceData_when_calling_addPriceUpdate() {
+    void should_call_price_repository_service_acceptPriceData_when_calling_addPriceUpdate() throws PriceRepositoryValidationException {
         // Given
         final InstrumentPriceFeedService   service            = ofInstrumentPriceFeedService();
         final InstrumentPriceUpdateRequest priceUpdateRequest = ofPriceUpdateRequest(PRICE_DATE);

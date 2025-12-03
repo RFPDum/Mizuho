@@ -2,6 +2,7 @@ package com.mizuho.matsuri.rest.feed.impl;
 
 import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 import com.mizuho.matsuri.pricestore.service.IPriceRepositoryService;
+import com.mizuho.matsuri.pricestore.service.PriceRepositoryValidationException;
 import com.mizuho.matsuri.rest.feed.exception.PriceValidationException;
 import com.mizuho.matsuri.rest.query.model.InstrumentPriceUpdateRequest;
 import com.mizuho.matsuri.rest.util.InstrumentPriceAdapter;
@@ -23,7 +24,7 @@ public class InstrumentPriceFeedService {
             final InstrumentPrice price = priceAdapter.toInstrumentPrice(priceUpdateRequest);
             priceRepositoryService.acceptPriceData(price);
             return ofOKResponse();
-        } catch (PriceValidationException e) {
+        } catch (PriceValidationException | PriceRepositoryValidationException e) {
             return ofFailedResponse(e.getMessage());
         }
     }

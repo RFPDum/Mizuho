@@ -5,7 +5,7 @@ import com.mizuho.matsuri.pricestore.model.InstrumentPrice;
 import java.util.Collection;
 
 public interface IPriceRepositoryService<T> {
-    void acceptPriceData(T instrumentPrice);
+    void acceptPriceData(T instrumentPrice) throws PriceRepositoryValidationException;
 
     Collection<T> retrievePricesForIsin(String isin);
 

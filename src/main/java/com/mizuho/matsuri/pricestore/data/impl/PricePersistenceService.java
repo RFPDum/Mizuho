@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.toList;
  * stored in Parquet/ORC... files according to the needs.
  */
 public class PricePersistenceService implements IPricePersistenceService {
-    private Collection<InstrumentPrice> priceStore = new ArrayList<>();
+    private final Collection<InstrumentPrice> priceStore = new ArrayList<>();
 
     @Override
     public void storeInstrumentPrice(InstrumentPrice instrumentPrice) {
